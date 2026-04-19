@@ -5,6 +5,9 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { Layout } from './components/Layout';
 import { Login } from './pages/Login';
 import { Projects } from './pages/Projects';
+import { Hackathons } from './pages/Hackathons';
+import { HackathonDetails } from './pages/HackathonDetails';
+import { Universities } from './pages/Universities';
 import { Testimonials } from './pages/Testimonials';
 import { Messages } from './pages/Messages';
 import './index.css';
@@ -18,6 +21,9 @@ function App() {
           
           <Route path="/" element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route index element={<Projects />} />
+            <Route path="hackathons" element={<Hackathons />} />
+            <Route path="hackathons/:id" element={<HackathonDetails />} />
+            <Route path="universities" element={<Universities />} />
             <Route path="testimonials" element={<Testimonials />} />
             <Route path="messages" element={<Messages />} />
           </Route>

@@ -20,6 +20,7 @@ export function Projects() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | number | null>(null);
   const [imagePreview, setImagePreview] = useState('');
+  const [uploading, setUploading] = useState(false);
   
   // Form state
   const [formData, setFormData] = useState({
@@ -64,6 +65,38 @@ export function Projects() {
   const handleImageUrlChange = (url: string) => {
     setFormData({ ...formData, image_url: url });
     setImagePreview(url);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file.');
+      return;
+    }
+
+    setUploading(true);
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
+
+    try {
+      const result = await fetchApi('/upload', {
+        method: 'POST',
+        body: uploadFormData,
+      });
+
+      if (result && result.url) {
+        setFormData({ ...formData, image_url: result.url });
+        setImagePreview(result.url);
+      }
+    } catch (error) {
+      console.error('Upload failed', error);
+      alert('Failed to upload image. Please try again.');
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSubmit = async (e: any) => {
@@ -298,8 +331,36 @@ export function Projects() {
               </div>
 
               <div className="form-group">
-                <label className="form-label required">Image URL</label>
-                <div className="image-input-wrapper">
+                <label className="form-label required">Project Image</label>
+                <div className="image-upload-section">
+                  <div className="upload-box">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="file-input"
+                      id="image-upload"
+                      disabled={uploading}
+                    />
+                    <label htmlFor="image-upload" className={`upload-label ${uploading ? 'uploading' : ''}`}>
+                      {uploading ? (
+                        <div className="upload-spinner-container">
+                          <div className="upload-spinner"></div>
+                          <span>Uploading...</span>
+                        </div>
+                      ) : (
+                        <>
+                          <ImageIcon size={24} />
+                          <span>Click to upload or drag and drop</span>
+                        </>
+                      )}
+                    </label>
+                  </div>
+                  
+                  <div className="upload-divider">
+                    <span>OR</span>
+                  </div>
+
                   <div className="input-with-icon">
                     <ImageIcon size={18} className="input-icon" />
                     <input
@@ -308,15 +369,25 @@ export function Projects() {
                       value={formData.image_url}
                       onChange={e => handleImageUrlChange(e.target.value)}
                       className="form-input"
-                      placeholder="https://example.com/image.jpg"
+                      placeholder="Enter image URL"
                     />
                   </div>
-                  {imagePreview && (
-                    <div className="image-preview">
-                      <img src={imagePreview} alt="Preview" />
-                    </div>
-                  )}
                 </div>
+                {imagePreview && (
+                  <div className="image-preview-container">
+                    <img src={imagePreview} alt="Preview" className="image-preview-img" />
+                    <button 
+                      type="button" 
+                      className="remove-image" 
+                      onClick={() => {
+                        setFormData({...formData, image_url: ''});
+                        setImagePreview('');
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="form-group">

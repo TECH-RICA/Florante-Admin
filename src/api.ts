@@ -1,16 +1,18 @@
-// export const API_BASE_URL = 'http://localhost:5000/api';
-export const API_BASE_URL = "https://florant-backend.onrender.com/api";
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://florant-backend.onrender.com/api";
 
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('token');
   
-  const headers = {
-    'Content-Type': 'application/json',
+  const headers: Record<string, string> = {
     ...options.headers,
-  };
+  } as any;
+
+  if (!(options.body instanceof FormData)) {
+    headers['Content-Type'] = 'application/json';
+  }
 
   if (token) {
-    (headers as any)['Authorization'] = `Bearer ${token}`;
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
