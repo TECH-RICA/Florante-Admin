@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Calendar, Users, Trophy, ChevronRight, AlertCircle, Clock } from 'lucide-react';
+import { Plus, Edit2, Trash2, Calendar, Trophy, ChevronRight, AlertCircle, Clock } from 'lucide-react';
 import { fetchApi } from '../api';
 import { Link } from 'react-router-dom';
 import './Hackathons.css';
