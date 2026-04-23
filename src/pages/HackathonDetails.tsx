@@ -21,6 +21,7 @@ interface Submission {
 interface Registration {
   id: string;
   leader_name: string;
+  email?: string;
   university_name: string;
   project_name: string;
   created_at: string;
@@ -142,7 +143,7 @@ export function HackathonDetails() {
           onClick={() => setActiveTab('participants')}
         >
           <Users size={18} />
-          Submissions ({submissions.length})
+          Participants ({registrations.length})
         </button>
         <button 
           className={`tab-btn ${activeTab === 'registrations' ? 'active' : ''}`}
@@ -232,31 +233,30 @@ export function HackathonDetails() {
               <table className="participants-table">
                 <thead>
                   <tr>
-                    <th>Team/User</th>
+                    <th>Participant</th>
+                    <th>Email</th>
+                    <th>University</th>
                     <th>Project</th>
-                    <th>Submitted At</th>
-                    <th>Action</th>
+                    <th>Registered At</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {submissions.map(submission => (
-                    <tr key={submission.id}>
-                      <td className="participant-name">
-                        <Users size={16} />
-                        {submission.teams?.team_name || 'Individual'}
-                      </td>
-                      <td>{submission.project_title}</td>
-                      <td>{new Date(submission.created_at).toLocaleString()}</td>
-                      <td>
-                        <button 
-                          className="table-view-btn"
-                          onClick={() => setActiveTab('submissions')}
-                        >
-                          View Project
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {registrations.length === 0 ? (
+                    <tr><td colSpan={5} className="text-center">No participants yet.</td></tr>
+                  ) : (
+                    registrations.map(reg => (
+                      <tr key={reg.id}>
+                        <td className="participant-name">
+                          <Users size={16} />
+                          {reg.leader_name}
+                        </td>
+                        <td>{reg.email || 'N/A'}</td>
+                        <td>{reg.university_name}</td>
+                        <td>{reg.project_name}</td>
+                        <td>{new Date(reg.created_at).toLocaleString()}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>

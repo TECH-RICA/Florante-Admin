@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Plus, Edit2, Trash2, Calendar, Trophy, ChevronRight, AlertCircle, Clock } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Plus, Edit2, Trash2, Calendar, Trophy, ChevronRight, AlertCircle, Clock, Users, Upload } from 'lucide-react';
 import { fetchApi } from '../api';
+import VideoPlayer from '../components/VideoPlayer';
+
 import { Link } from 'react-router-dom';
 import './Hackathons.css';
 
@@ -13,13 +15,28 @@ export interface Hackathon {
   deadline: string;
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   created_at: string;
+  // New fields
+  tagline?: string;
+  long_description?: string;
+  objectives?: string[];
+  schedule?: any[];
+  prizes?: any[];
+  judges?: any[];
+  sponsors?: any[];
+  tech_stack?: string[];
+  prize_pool_desc?: string;
+  video_url?: string;
 }
+
 
 export function Hackathons() {
   const [hackathons, setHackathons] = useState<Hackathon[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | number | null>(null);
+  const [totalParticipants, setTotalParticipants] = useState(0);
+  const [uploading, setUploading] = useState(false);
+
   
   // Form state
   const [formData, setFormData] = useState({
@@ -28,8 +45,25 @@ export function Hackathons() {
     rules: '',
     start_date: '',
     deadline: '',
-    status: 'upcoming' as Hackathon['status']
+    status: 'upcoming' as Hackathon['status'],
+    tagline: '',
+    long_description: '',
+    objectives: '',
+    schedule: '',
+    prizes: '',
+    judges: '',
+    sponsors: '',
+    tech_stack: '',
+    prize_pool_desc: '',
+    video_url: ''
   });
+
+
+  const formatDateForDisplay = (dateStr: string) => {
+    if (!dateStr) return '';
+    const [year, month, day] = dateStr.split('T')[0].split('-').map(Number);
+    return new Date(year, month - 1, day).toLocaleDateString();
+  };
 
   useEffect(() => {
     loadHackathons();
@@ -37,8 +71,12 @@ export function Hackathons() {
 
   const loadHackathons = async () => {
     try {
-      const data = await fetchApi('/hackathons');
-      setHackathons(data);
+      const [hData, statsData] = await Promise.all([
+        fetchApi('/hackathons'),
+        fetchApi('/hackathons/stats/participants')
+      ]);
+      setHackathons(hData);
+      setTotalParticipants(statsData.totalParticipants);
     } catch (error) {
       console.error('Failed to load hackathons', error);
     } finally {
@@ -55,8 +93,19 @@ export function Hackathons() {
         rules: hackathon.rules || '',
         start_date: hackathon.start_date.split('T')[0],
         deadline: hackathon.deadline.split('T')[0],
-        status: hackathon.status
+        status: hackathon.status,
+        tagline: hackathon.tagline || '',
+        long_description: hackathon.long_description || '',
+        objectives: Array.isArray(hackathon.objectives) ? JSON.stringify(hackathon.objectives, null, 2) : '',
+        schedule: Array.isArray(hackathon.schedule) ? JSON.stringify(hackathon.schedule, null, 2) : '',
+        prizes: Array.isArray(hackathon.prizes) ? JSON.stringify(hackathon.prizes, null, 2) : '',
+        judges: Array.isArray(hackathon.judges) ? JSON.stringify(hackathon.judges, null, 2) : '',
+        sponsors: Array.isArray(hackathon.sponsors) ? JSON.stringify(hackathon.sponsors, null, 2) : '',
+        tech_stack: Array.isArray(hackathon.tech_stack) ? hackathon.tech_stack.join(', ') : '',
+        prize_pool_desc: hackathon.prize_pool_desc || '',
+        video_url: hackathon.video_url || ''
       });
+
     } else {
       setEditingId(null);
       setFormData({
@@ -65,24 +114,69 @@ export function Hackathons() {
         rules: '',
         start_date: '',
         deadline: '',
-        status: 'upcoming'
+        status: 'upcoming',
+        tagline: '',
+        long_description: '',
+        objectives: '',
+        schedule: '',
+        prizes: '',
+        judges: '',
+        sponsors: '',
+        tech_stack: '',
+        prize_pool_desc: '',
+        video_url: ''
       });
+
     }
     setIsModalOpen(true);
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetchApi('/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      setFormData(prev => ({ ...prev, video_url: res.url }));
+    } catch (error) {
+      console.error('Upload failed', error);
+      alert('Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const submissionData = {
+        ...formData,
+        objectives: formData.objectives ? JSON.parse(formData.objectives) : [],
+        schedule: formData.schedule ? JSON.parse(formData.schedule) : [],
+        prizes: formData.prizes ? JSON.parse(formData.prizes) : [],
+        judges: formData.judges ? JSON.parse(formData.judges) : [],
+        sponsors: formData.sponsors ? JSON.parse(formData.sponsors) : [],
+        tech_stack: formData.tech_stack ? formData.tech_stack.split(',').map(s => s.trim()) : []
+      };
+
       if (editingId) {
         await fetchApi(`/hackathons/${editingId}`, {
           method: 'PUT',
-          body: JSON.stringify(formData),
+          body: JSON.stringify(submissionData),
         });
       } else {
         await fetchApi('/hackathons', {
           method: 'POST',
-          body: JSON.stringify(formData),
+          body: JSON.stringify(submissionData),
         });
       }
       setIsModalOpen(false);
@@ -149,6 +243,13 @@ export function Hackathons() {
             <div className="stat-label">Completed</div>
           </div>
         </div>
+        <div className="stat-card">
+          <div className="stat-icon participants"><Users size={24} /></div>
+          <div className="stat-info">
+            <div className="stat-value">{totalParticipants}</div>
+            <div className="stat-label">Total Participants</div>
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -179,11 +280,11 @@ export function Hackathons() {
                 <div className="hackathon-dates">
                   <div className="date-tag">
                     <Calendar size={14} />
-                    Starts: {new Date(hackathon.start_date).toLocaleDateString()}
+                    Starts: {formatDateForDisplay(hackathon.start_date)}
                   </div>
                   <div className="date-tag">
                     <AlertCircle size={14} />
-                    Deadline: {new Date(hackathon.deadline).toLocaleDateString()}
+                    Deadline: {formatDateForDisplay(hackathon.deadline)}
                   </div>
                 </div>
               </div>
@@ -252,6 +353,17 @@ export function Hackathons() {
               </div>
 
               <div className="form-group">
+                <label className="form-label">Tagline</label>
+                <input
+                  type="text"
+                  value={formData.tagline}
+                  onChange={e => setFormData({...formData, tagline: e.target.value})}
+                  className="form-input"
+                  placeholder="Catchy phrase for the hackathon"
+                />
+              </div>
+
+              <div className="form-group">
                 <label className="form-label required">Status</label>
                 <select
                   value={formData.status}
@@ -266,25 +378,137 @@ export function Hackathons() {
               </div>
 
               <div className="form-group">
-                <label className="form-label required">Description</label>
+                <label className="form-label required">Short Description</label>
                 <textarea
                   required
-                  rows={3}
+                  rows={2}
                   value={formData.description}
                   onChange={e => setFormData({...formData, description: e.target.value})}
                   className="form-textarea"
-                  placeholder="Brief overview of the hackathon..."
+                  placeholder="Brief overview..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Long Description</label>
+                <textarea
+                  rows={4}
+                  value={formData.long_description}
+                  onChange={e => setFormData({...formData, long_description: e.target.value})}
+                  className="form-textarea"
+                  placeholder="Detailed information about the event..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Prize Pool Description</label>
+                <input
+                  type="text"
+                  value={formData.prize_pool_desc}
+                  onChange={e => setFormData({...formData, prize_pool_desc: e.target.value})}
+                  className="form-input"
+                  placeholder="e.g., $10,000 in prizes"
                 />
               </div>
 
               <div className="form-group">
                 <label className="form-label">Rules & Guidelines</label>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={formData.rules}
                   onChange={e => setFormData({...formData, rules: e.target.value})}
                   className="form-textarea"
                   placeholder="Submission rules, eligibility, etc..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Tech Stack (comma separated)</label>
+                <input
+                  type="text"
+                  value={formData.tech_stack}
+                  onChange={e => setFormData({...formData, tech_stack: e.target.value})}
+                  className="form-input"
+                  placeholder="React, Node.js, Supabase"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Objectives (JSON Array)</label>
+                <textarea
+                  rows={3}
+                  value={formData.objectives}
+                  onChange={e => setFormData({...formData, objectives: e.target.value})}
+                  className="form-textarea"
+                  placeholder='["Build AI tools", "Foster collaboration"]'
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Prizes (JSON Array)</label>
+                <textarea
+                  rows={3}
+                  value={formData.prizes}
+                  onChange={e => setFormData({...formData, prizes: e.target.value})}
+                  className="form-textarea"
+                  placeholder='[{"place": "1st", "amount": "$5,000"}]'
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Schedule (JSON Array)</label>
+                <textarea
+                  rows={3}
+                  value={formData.schedule}
+                  onChange={e => setFormData({...formData, schedule: e.target.value})}
+                  className="form-textarea"
+                  placeholder='[{"time": "9:00 AM", "event": "Opening Ceremony"}]'
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-group">Judges (JSON Array)</label>
+                <textarea
+                  rows={3}
+                  value={formData.judges}
+                  onChange={e => setFormData({...formData, judges: e.target.value})}
+                  className="form-textarea"
+                  placeholder='[{"name": "Jane Doe", "role": "CEO of Tech"}]'
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Trailer Video URL / Upload</label>
+                <div className="media-input-group">
+                  <input
+                    type="text"
+                    value={formData.video_url}
+                    onChange={e => setFormData({...formData, video_url: e.target.value})}
+                    className="form-input"
+                    placeholder="YouTube URL or upload video file"
+                  />
+                  <label className="upload-btn-label">
+                    <input type="file" onChange={handleFileUpload} accept="video/*" hidden />
+                    {uploading ? '...' : <Upload size={18} />}
+                  </label>
+                </div>
+                {formData.video_url && (
+                  <div className="media-preview-container" style={{ marginTop: '10px' }}>
+                    <VideoPlayer url={formData.video_url} />
+                    <button type="button" className="remove-media-overlay" onClick={() => setFormData({ ...formData, video_url: '' })}>Remove Video</button>
+                  </div>
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Sponsors (JSON Array)</label>
+
+                <textarea
+                  rows={3}
+                  value={formData.sponsors}
+                  onChange={e => setFormData({...formData, sponsors: e.target.value})}
+                  className="form-textarea"
+                  placeholder='[{"name": "Google", "logo": "url"}]'
                 />
               </div>
 

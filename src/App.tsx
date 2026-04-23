@@ -10,6 +10,9 @@ import { HackathonDetails } from './pages/HackathonDetails';
 import { Universities } from './pages/Universities';
 import { Testimonials } from './pages/Testimonials';
 import { Messages } from './pages/Messages';
+import { Blogs } from './pages/Blogs';
+import { Comments } from './pages/Comments';
+import { BlogAnalytics } from './pages/BlogAnalytics';
 import './index.css';
 
 function App() {
@@ -26,6 +29,9 @@ function App() {
             <Route path="universities" element={<Universities />} />
             <Route path="testimonials" element={<Testimonials />} />
             <Route path="messages" element={<Messages />} />
+            <Route path="blogs" element={<Blogs />} />
+            <Route path="comments" element={<Comments />} />
+            <Route path="analytics" element={<BlogAnalytics />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

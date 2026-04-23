@@ -1,0 +1,39 @@
+/* Admin Blog Analytics */
+.analytics-admin { padding: 0; }
+
+.analytics-admin-header { margin-bottom: 1.5rem; }
+.analytics-admin-header h1 { font-size:1.5rem; font-weight:600; color:#fff; margin:0; }
+
+.analytics-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:1.5rem; margin-top:1.5rem; }
+
+.analytics-card {
+  background:#1e1e2e; border:1px solid #2a2a3a; border-radius:12px; padding:1.5rem;
+}
+.analytics-card h3 { font-size:1rem; color:#fff; margin-bottom:1.25rem; font-weight:600; display:flex; align-items:center; gap:0.5rem; }
+
+/* Popular Blogs List */
+.popular-blogs-list { display:flex; flex-direction:column; gap:1rem; }
+.popular-blog-item { display:flex; justify-content:space-between; align-items:center; padding-bottom:0.75rem; border-bottom:1px solid #2a2a3a; }
+.popular-blog-item:last-child { border-bottom:none; padding-bottom:0; }
+
+.popular-blog-info { flex:1; min-width:0; }
+.popular-blog-title { color:#fff; font-size:0.9rem; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.popular-blog-date { color:#666; font-size:0.75rem; margin-top:0.25rem; }
+
+.popular-blog-stat { display:flex; flex-direction:column; align-items:flex-end; }
+.popular-blog-value { color:#16cf21; font-weight:600; font-size:0.95rem; }
+.popular-blog-label { color:#666; font-size:0.7rem; text-transform:uppercase; }
+
+/* Engagement Bars */
+.engagement-bar-item { margin-bottom:1rem; }
+.engagement-bar-label { display:flex; justify-content:space-between; font-size:0.85rem; color:#ccc; margin-bottom:0.35rem; }
+.engagement-bar-bg { height:8px; background:#12121e; border-radius:4px; overflow:hidden; }
+.engagement-bar-fill { height:100%; background:linear-gradient(90deg, #16cf21, #0f8318); border-radius:4px; transition:width 1s ease-out; }
+
+/* Summary Stats */
+.summary-stats-grid { display:grid; grid-template-columns:repeat(2, 1fr); gap:1rem; }
+.summary-stat-box { background:#12121e; padding:1rem; border-radius:8px; border:1px solid #2a2a3a; text-align:center; }
+.summary-stat-value { font-size:1.25rem; font-weight:700; color:#fff; display:block; }
+.summary-stat-label { font-size:0.7rem; color:#888; text-transform:uppercase; margin-top:0.25rem; }
+
+.analytics-loading { text-align:center; padding:4rem; color:#888; }

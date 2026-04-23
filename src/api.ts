@@ -1,7 +1,7 @@
 export const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   
   const headers: Record<string, string> = {
     ...options.headers,
@@ -20,8 +20,8 @@ export const fetchApi = async (endpoint: string, options: RequestInit = {}) => {
     headers,
   });
 
-  if (response.status === 401) {
-    localStorage.removeItem('token');
+  if (response.status === 401 || response.status === 403) {
+    sessionStorage.removeItem('token');
     window.dispatchEvent(new Event('auth-error'));
   }
 

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, Quote, LogOut, Menu, X, Trophy, School } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Quote, LogOut, Menu, X, Trophy, School, FileText, BarChart3 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import './Sidebar.css';
@@ -36,8 +36,11 @@ export function Sidebar() {
     { to: '/', icon: LayoutDashboard, label: 'Projects' },
     { to: '/hackathons', icon: Trophy, label: 'Hackathons' },
     { to: '/universities', icon: School, label: 'Universities' },
+    { to: '/analytics', icon: BarChart3, label: 'Analytics' },
+    { to: '/blogs', icon: FileText, label: 'Blogs' },
+    { to: '/comments', icon: MessageSquare, label: 'Comments' },
     { to: '/testimonials', icon: Quote, label: 'Testimonials' },
-    { to: '/messages', icon: MessageSquare, label: 'Messages' }
+    { to: '/messages', icon: MessageSquare, label: 'Contact Messages' }
   ];
 
   const SidebarContent = () => (
