@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, Quote, LogOut, Menu, X, Trophy, School, FileText, BarChart3 } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Quote, LogOut, Menu, X, Trophy, School, FileText, BarChart3, Briefcase } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useState, useEffect } from 'react';
 import './Sidebar.css';
@@ -34,6 +34,7 @@ export function Sidebar() {
 
   const navItems = [
     { to: '/', icon: LayoutDashboard, label: 'Projects' },
+    { to: '/services', icon: Briefcase, label: 'Services' },
     { to: '/hackathons', icon: Trophy, label: 'Hackathons' },
     { to: '/universities', icon: School, label: 'Universities' },
     { to: '/analytics', icon: BarChart3, label: 'Analytics' },

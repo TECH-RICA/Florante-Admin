@@ -13,6 +13,7 @@ import { Messages } from './pages/Messages';
 import { Blogs } from './pages/Blogs';
 import { Comments } from './pages/Comments';
 import { BlogAnalytics } from './pages/BlogAnalytics';
+import { Services } from './pages/Services';
 import './index.css';
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
             <Route path="blogs" element={<Blogs />} />
             <Route path="comments" element={<Comments />} />
             <Route path="analytics" element={<BlogAnalytics />} />
+            <Route path="services" element={<Services />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
